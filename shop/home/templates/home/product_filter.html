@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row" style="margin-top: 100px;">
+    {% for products in product %}
+    <div class="card"
+        style="width: 20%;height: 400px; margin-left: 0.45%; margin-right: 0.45%; margin-top: -50px; border: 3px #536493 solid; background-color: #F6F5F2;">
+        <h5 class="card-title" style="margin-left: auto; margin-right: auto;">{{ products.name }}</h5>
+        <div
+            style=" overflow: hidden; width: 270px; height: 260px; border: 2px black solid; margin-left: auto; margin-right: auto;">
+            <img class="card-img-top" src="data:image/jpeg;base64,{{ products.image_base64 }}" alt="{{ products.name }}"
+                style="object-fit: cover;">
+        </div>
+
+        <div class="card-body">
+
+            <p class="card-text">{{ products.description }}</p>
+
+
+
+            <a href="{% url 'products:detail' products.slug %}" class="btn btn-primary"> Details </a>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+
+{% endblock %}

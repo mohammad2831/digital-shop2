@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Unit Price</th>
+            <th scope="col">Total Price</th>
+            <th scope="col">Remove</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in cart %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.total_price }}</td>
+            <td>
+                {% if item.product.id %}
+                <a href="{% url 'orders:cart_remove' item.product.id %}">Remove</a>
+                {% else %}
+                <span>Error: Product ID missing</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td>Total</td>
+            <td colspan="4"></td>
+            <td>{{ cart.get_total_price }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<a href="{% url 'orders:order_create' %}" class="btn btn-primary"> Checkout</a>
+{% endblock %}

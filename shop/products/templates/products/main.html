@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>
+{% for category, products in categories_with_products.items %}
+<div class="category-container">
+    <div class="category-header">
+        <h3>{{ category.name }} :</h3>
+    </div>
+
+    <div class="product-container">
+        {% for product in products %}
+        <div class="card">
+            <h5 class="card-title">{{ product.name }}</h5>
+            <div class="image-container">
+                <img class="card-img-top" src="data:image/jpeg;base64,{{ product.image_base64 }}"
+                    alt="{{ product.name }}">
+            </div>
+            <div class="card-body">
+                <a href="{% url 'products:detail' product.slug %}" class="btn btn-primary"> Details </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+<style>
+    .category-container {
+        width: 95%;
+        border: 3px black solid;
+        margin: 0 auto 50px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .category-header {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .product-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        width: 100%;
+    }
+
+    .card {
+        width: 17%;
+        margin: 10px;
+        border: 3px #536493 solid;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .image-container {
+        height: 200px;
+        width: 200px;
+        margin: 10px auto;
+        border: 2px black solid;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+{% endblock %}
