@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'products.apps.ProductsConfig',
     'orders.apps.OrdersConfig',
+    'corsheaders',
+
 ]
 
 MIDDLEWARE = [
@@ -51,6 +53,19 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+
+
+    'corsheaders.middleware.CorsMiddleware',
+
+
+    'accounts.middleware.AdminLockMiddleware',
+]
+CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'https://yourdomain.com',
 ]
 
 ROOT_URLCONF = 'shop.urls'

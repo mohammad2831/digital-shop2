@@ -17,13 +17,14 @@ class Order(models.Model):
     def __str__(self):
         return f'{self.user} - {self.id}'
     
-
+    
     def get_total_price(self):
         total = sum(item.get_cost() for item in self.items.all())
         if self.discount:
             discount_price = (self.discount /100) * total
             return int(total - discount_price)
         return total
+
     
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
@@ -37,6 +38,8 @@ class OrderItem(models.Model):
     
     def get_cost(self):
         return self.price * self.quantity
+    
+
 
 
 class Coupon(models.Model):

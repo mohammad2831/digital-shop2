@@ -23,3 +23,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return self.is_admin
+    
+
+
+
+class AdminLock(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    locked_at = models.DateTimeField(auto_now_add=True)

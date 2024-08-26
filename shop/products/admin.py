@@ -1,6 +1,8 @@
 from django.contrib import admin
 from .models import Category_Type, Category_Company, Products,Attribute,ProductAttribute, ProductView
 from .forms import ProductsForm, ProductAttributeForm
+from django.db import transaction
+
 
 class CategoryTypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
@@ -18,6 +20,7 @@ class ProductAttributeInline(admin.TabularInline):
     form = ProductAttributeForm
     extra = 1
 
+
 class ProductsAdmin(admin.ModelAdmin):
     form = ProductsForm
     list_display = ('name', 'category', 'stock', 'price', 'available', 'created', 'updated')
@@ -26,11 +29,26 @@ class ProductsAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     inlines = [ProductAttributeInline]
 
+    def save_model(self, request, obj, form, change):
+        if change:
+            # قفل کردن رکورد محصول برای جلوگیری از تغییر همزمان
+            with transaction.atomic():
+                try:
+                    # قفل کردن رکورد قبل از انجام تغییرات
+                    Products.objects.select_for_update().get(pk=obj.pk)
+                except Products.DoesNotExist:
+                    pass  # رکورد ممکن است در حین قفل‌گذاری حذف شده باشد
+                super().save_model(request, obj, form, change)
+        else:
+            super().save_model(request, obj, form, change)
 
 class ProductViewAdmin(admin.ModelAdmin):
 
     list_display = ('product', 'ip_address', 'timestamp')
     list_filter = ('timestamp',)
+
+
+
 
 
 

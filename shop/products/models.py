@@ -37,6 +37,24 @@ class Products(models.Model):
     stock = models.IntegerField(default=0)  
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    lock_session = models.CharField(max_length=40, null=True, blank=True)
+    lock_timestamp = models.DateTimeField(null=True, blank=True)
+
+    def lock(self, session_key):
+        self.lock_session = session_key
+        self.lock_timestamp = timezone.now()
+        self.save()
+
+    def unlock(self):
+        self.lock_session = None
+        self.lock_timestamp = None
+        self.save()
+
+    def is_locked(self, session_key):
+        # آزاد کردن قفل خودکار بعد از مدت زمان معین
+        if self.lock_timestamp and (timezone.now() - self.lock_timestamp) > timedelta(minutes=10):
+            self.unlock()
+        return self.lock_session == session_key and (self.lock_timestamp and (timezone.now() - self.lock_timestamp) < timedelta(minutes=10))
 
     class Meta:
         ordering = ('created' ,)

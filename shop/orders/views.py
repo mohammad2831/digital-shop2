@@ -11,7 +11,8 @@ import requests
 import json
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse
-
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 
 class CartView(View):
@@ -102,59 +103,87 @@ class CouponApplyView(LoginRequiredMixin, View):
 	
 
 
+
+
+
+
+
+
+
+
+@method_decorator(csrf_exempt, name='dispatch')
 class PaymentView(View):
     def post(self, request, order_id):
         order = get_object_or_404(Order, id=order_id)
-        amount = order.get_total_price()  
-        return render(request, 'orders/load.html', {'order':order, 'amount':amount})
+        print(order_id)
+        print("++++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
-class DetaiPay(View):
-     def post(request):
-          return render(request, 'orders/pay.html')
-          
+     #   order_item_id = order.items.all()
+        amount = order.get_total_price()
 
-
-'''
-class ZibalPaymentView(View):
-
-
-    def post(self, request, order_id):
-        # اطلاعات احراز هویت
-        merchant_id = "zibal"  # مقدار واقعی را اینجا وارد کنید
         
-        order = get_object_or_404(Order, id=order_id)
-
-        amount = order.get_total_price()  # Assuming you have a method to get total price
-
-        # اطلاعات سفارش
-      
-        
-        # ساخت داده‌ها برای درخواست
         data = {
-            "merchantId": merchant_id,
-          
-            "orderId": str(order.id),
-            "amount": amount,
-            "callbackUrl" : 'http://127.0.0.1:8080/orders/verify/',  
-            "description": "Order payment",
-           
+            'pin': 'sandbox',
+            'amount': amount,
+            'callback': 'http://127.0.0.1:8000/orders/payment/callback/',
+            'invoice_id': str(order.id),
         }
-            
+        
+        response = requests.post('https://panel.aqayepardakht.ir/api/v2/create', data=data)
+        json_data = json.loads(response.text)
 
-        # ارسال درخواست به زیبال
-        url = "https://sandbox-api.zibal.ir/merchant/addOrder"
-        response = requests.post(url, json=data)
-        result = response.json()
+        if response.status_code == 200 and json_data.get('status') == 'success':
+            transid = json_data.get('transid')
+            if transid:
+                return redirect(f'https://panel.aqayepardakht.ir/startpay/sandbox/{transid}')
+      
+        return render(request, 'orders/load.html')
 
-        if result['result'] == 1:
-            # هدایت به صفحه پرداخت
-            zibal_id = result['zibalId']
-            payment_url = f"https://gateway.zibal.ir/start/{zibal_id}"
-            return HttpResponse(f"<a href='{payment_url}'>پرداخت</a>")
+
+
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PaymentCallbackView(View):
+    def post(self, request):
+        status = request.POST.get('status')
+        transid = request.POST.get('transid')
+        invoice_id_str = request.POST.get('invoice_id')
+        print(invoice_id_str)
+       
+        print(type(invoice_id_str))
+
+        invoice_id_int = int(invoice_id_str)
+
+        if status == "1":  
+            try:
+                order = get_object_or_404(Order, id=invoice_id_int)
+                order_items = order.items.all() 
+    
+                products = [item.product for item in order_items]
+
+                
+                print(products)
+                
+                
+                for item in order_items:
+                    product = item.product
+                    product.stock -= item.quantity
+                    product.save() 
+                
+              
+                return render(request, 'orders/load.html')
+
+
+            except OrderItem.DoesNotExist:
+                print("OrderItem with the given ID does not exist")
+               
+                return redirect('orders:order_create')
+
         else:
-            return JsonResponse({"error": result['message']})
-    
+            print("----------------------------------------------------------")
+       
+            return redirect('orders:order_create')
 
-    
-'''
+

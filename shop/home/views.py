@@ -9,6 +9,9 @@ class HomeView(View):
     def get(self, request):
         types = Category_Type.objects.all()
         return render(request, 'home/home.html', {'types': types})
+    
+    def post(request):
+        pass
 
 class CompanyView(View):
     def get(self, request, slug):

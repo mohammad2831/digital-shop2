@@ -18,21 +18,10 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ('paid',)
     inlines = (OrserItemInline,)
     
-    def save_model(self, request, obj, form, change):
-        if change and 'paid' in form.changed_data and obj.paid:
-           
-            self.reduce_product_stock(obj)
-        super().save_model(request, obj, form, change)
 
-    def reduce_product_stock(self, order):
-        
-        order_items = OrderItem.objects.filter(order=order)
-        for item in order_items:
-            product = item.product  
-            product.stock -= item.quantity  
-            product.save()
     
 
 
 admin.site.register(Coupon)
+admin.site.register(OrderItem)
 
