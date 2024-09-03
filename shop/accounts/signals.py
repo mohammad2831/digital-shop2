@@ -8,12 +8,10 @@ def handle_admin_login(sender, request, user, **kwargs):
     if not user.is_superuser:
         return
     
-    # چک کردن قفل‌های موجود
     locks = AdminLock.objects.all()
     if locks.exists():
         raise PermissionDenied("Another admin is currently editing. Please wait.")
 
-    # ایجاد قفل جدید
     AdminLock.objects.create(user=user)
 
 

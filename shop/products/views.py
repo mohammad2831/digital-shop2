@@ -3,7 +3,9 @@ from django.views import View
 from .models import Products, Category_Type, ProductAttribute, ProductView
 from orders.forms import CartAddForm
 from ipware import get_client_ip
-
+from home.forms import CommentForm
+from django.shortcuts import redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class AllView(View):
     def get(self, request):
@@ -23,7 +25,6 @@ class DetailProductView(View):
         product = get_object_or_404(Products, slug=slug)
         attr =  product.product_attributes.all()
 
-
         ip_address, is_routable = get_client_ip(request)
         session_key = request.session.session_key
         user = request.user if request.user.is_authenticated else None
@@ -32,15 +33,41 @@ class DetailProductView(View):
             request.session.create()
             session_key = request.session.session_key
 
-        # Check if the view already exists
         if not ProductView.objects.filter(product=product, ip_address=ip_address, session_key=session_key, user=user).exists():
             ProductView.objects.create(product=product, ip_address=ip_address, session_key=session_key, user=user)
+        
+        comments = product.pcomments.all()
+
+
+        return render(request, 'products/detail.html', {'product': product, 'form':form, 'attr':attr, 'comments': comments})
 
 
 
-        return render(request, 'products/detail.html', {'product': product, 'form':form, 'attr':attr})
+
+    def post(self, request, slug):
+        product = get_object_or_404(Products, slug=slug)
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.user = request.user
+            comment.product = product
+            comment.save()
+            return redirect('products:detail', slug=product.slug)
         
 
+        comments = product.pcomments.all()
+        attr = product.product_attributes.all()
+        cart_form = CartAddForm() 
+
+        return render(request, 'products/detail.html', {
+            'product': product,
+            'form': cart_form,
+            'attr': attr,
+            'comments': comments,
+            'comment_form': form
+        })
+
+        
 
 
 

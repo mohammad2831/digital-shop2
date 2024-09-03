@@ -17,6 +17,7 @@ urlpatterns =[
 
     path('payment/callback/', views.PaymentCallbackView.as_view(), name='payment_callback'),
     path('home/', HomeView.as_view(), name='home'),
+    path('profile/<int:order_id>', views.ProfileOrderDetail.as_view(), name='profile_order_detail')
 
 
     

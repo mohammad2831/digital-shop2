@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .utils import send_email_via_sender_net
+from orders.models import Order
 
 class UserRegisterView(View):
     def dispatch(self, request, *args, **kwargs):
@@ -70,6 +71,19 @@ class UserLoginView(View):
 
         return render(request, 'accounts/login.html', {'form': form})
     
+
+
+
+class UserProfile(View):
+    def get(self, request):
+        user = request.user
+        orders = Order.objects.filter(user=user)
+        return render(request, 'accounts/profile.html', {'user': user, 'orders': orders})
+    
+class ProfileOrderDetail(View):
+    def get(self, request):
+        pass
+
 
 
 

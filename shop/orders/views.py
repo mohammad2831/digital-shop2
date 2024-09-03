@@ -159,6 +159,8 @@ class PaymentCallbackView(View):
         if status == "1":  
             try:
                 order = get_object_or_404(Order, id=invoice_id_int)
+                order.paid = True
+                order.save()
                 order_items = order.items.all() 
     
                 products = [item.product for item in order_items]
@@ -173,7 +175,7 @@ class PaymentCallbackView(View):
                     product.save() 
                 
               
-                return render(request, 'orders/load.html')
+                return redirect('home:home')
 
 
             except OrderItem.DoesNotExist:
@@ -187,3 +189,15 @@ class PaymentCallbackView(View):
             return redirect('orders:order_create')
 
 
+
+
+class ProfileOrderDetail(View):
+    def get(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+        order_items = order.items.all() 
+    
+        products = [item.product for item in order_items]
+
+        print(products)
+
+        return render(request, 'orders/profile_order_detail.html',{'product':products})

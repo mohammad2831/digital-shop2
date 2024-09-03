@@ -1,7 +1,10 @@
 from django.contrib import admin
-from .models import Category_Type, Category_Company, Products,Attribute,ProductAttribute, ProductView
+from .models import Category_Type, Category_Company, Products,Attribute,ProductAttribute, ProductView, ProductLock
+from django.shortcuts import redirect
 from .forms import ProductsForm, ProductAttributeForm
 from django.db import transaction
+from django.utils import timezone
+
 
 
 class CategoryTypeAdmin(admin.ModelAdmin):
@@ -29,21 +32,57 @@ class ProductsAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     inlines = [ProductAttributeInline]
 
-    def save_model(self, request, obj, form, change):
-        if change:
-            # قفل کردن رکورد محصول برای جلوگیری از تغییر همزمان
-            with transaction.atomic():
-                try:
-                    # قفل کردن رکورد قبل از انجام تغییرات
-                    Products.objects.select_for_update().get(pk=obj.pk)
-                except Products.DoesNotExist:
-                    pass  # رکورد ممکن است در حین قفل‌گذاری حذف شده باشد
-                super().save_model(request, obj, form, change)
-        else:
-            super().save_model(request, obj, form, change)
+
+
+
+    
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        product = self.get_object(request, object_id)
+        lock, created = ProductLock.objects.get_or_create(product=product)
+
+        if lock.is_locked() and lock.locked_by != request.user:
+            self.message_user(request, "This product is currently locked for editing by another admin.", level='warning')
+            return redirect('admin:index')
+
+        lock.lock_session = request.session.session_key
+        lock.lock_timestamp = timezone.now()
+        lock.locked_by = request.user
+        lock.save()
+
+        return super().change_view(request, object_id, form_url, extra_context)
+
+    def response_change(self, request, obj):
+        try:
+            product_lock = ProductLock.objects.get(product=obj)
+            product_lock.lock_session = None
+            product_lock.lock_timestamp = None
+            product_lock.locked_by = None
+            product_lock.save()
+        except ProductLock.DoesNotExist:
+            pass
+        return super().response_change(request, obj)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class ProductViewAdmin(admin.ModelAdmin):
-
     list_display = ('product', 'ip_address', 'timestamp')
     list_filter = ('timestamp',)
 
