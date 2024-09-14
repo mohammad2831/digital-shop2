@@ -12,7 +12,11 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ('is_admin',)
     fieldsets=(
         ('Main',{'fields':('email', 'phone_number', 'username', 'password')}),
+<<<<<<< HEAD
         ('Permision',{'fields':('is_active', 'is_admin', 'is_superuser','last_login', 'user_permissions')}),
+=======
+        ('Permision',{'fields':('is_active', 'is_admin', 'is_superuser','last_login')}),
+>>>>>>> c42e347d (atomic transaction)
     )
 
     add_fieldsets = (
@@ -21,7 +25,15 @@ class UserAdmin(BaseUserAdmin):
 
     search_fields= ('email', 'phone_number')
     ordering = ('email', )
+<<<<<<< HEAD
     filter_horizontal =('user_permissions',)
     list_per_page=3
 admin.site.unregister(Group)
 admin.site.register(User, UserAdmin)
+=======
+    filter_horizontal =()
+    
+    list_per_page=3
+admin.site.unregister(Group)
+admin.site.register(User)
+>>>>>>> c42e347d (atomic transaction)

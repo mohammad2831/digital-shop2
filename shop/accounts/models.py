@@ -15,6 +15,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['phone_number', 'username']
 
+<<<<<<< HEAD
     def __str__(self):
         return self.username
 
@@ -23,3 +24,26 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return self.is_admin
+=======
+
+    def __str__(self):
+        return self.email
+
+    def has_perm(self, perm, obj=None):
+        # دسترسی کامل برای ادمین‌ها
+        return self.is_admin
+
+    def has_module_perms(self, app_label):
+        # دسترسی کامل برای ادمین‌ها به تمام اپلیکیشن‌ها
+        return self.is_admin
+
+    @property
+    def is_staff(self):
+        return self.is_admin
+
+
+
+class AdminLock(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    locked_at = models.DateTimeField(auto_now_add=True)
+>>>>>>> c42e347d (atomic transaction)

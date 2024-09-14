@@ -11,6 +11,12 @@ import requests
 import json
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse
+<<<<<<< HEAD
+=======
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.db import transaction,OperationalError
+>>>>>>> c42e347d (atomic transaction)
 
 
 
@@ -63,7 +69,11 @@ class OrdersCreateView(LoginRequiredMixin,View):
 		order = Order.objects.create(user=request.user)
 		for item in cart:
 			OrderItem.objects.create(order=order, product=item['product'], price=item['price'], quantity=item['quantity'])
+<<<<<<< HEAD
 		cart.clear()
+=======
+		
+>>>>>>> c42e347d (atomic transaction)
 		return redirect('orders:order_detail', order.id)		
 
 
@@ -102,6 +112,7 @@ class CouponApplyView(LoginRequiredMixin, View):
 	
 
 
+<<<<<<< HEAD
 class PaymentView(View):
     def post(self, request, order_id):
         order = get_object_or_404(Order, id=order_id)
@@ -158,3 +169,126 @@ class ZibalPaymentView(View):
 
     
 '''
+=======
+
+
+
+
+
+
+
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PaymentView(View):
+    def post(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+        print(order_id)
+
+        with transaction.atomic():
+            order_items = order.items.all() 
+            product_ids = [item.product for item in order_items]
+
+            products = Products.objects.filter(name=product_ids).select_for_update()
+               
+            print(product_ids)
+                               
+            for item in order_items:
+                
+                
+                product = item.product
+                if product.is_available():
+                    product.stock -= item.quantity
+                    product.save()
+                    cart = Cart(request)
+                    print("Before clearing cart:", cart.cart)  
+                    cart.clear()
+                    print("After clearing cart:", cart.cart)  
+
+                elif not product.is_available() or product.stock < item.quantity:
+                    messages.error(request, f'Product {product.name} is out of stock or quantity is insufficient.')
+                    return redirect('orders:cart')	
+                     
+       
+
+
+        amount = order.get_total_price()
+
+   
+        data = {
+            'pin': 'sandbox',
+            'amount': amount,
+            'callback': 'http://127.0.0.1:8000/orders/payment/callback/',
+            'invoice_id': str(order.id),
+        }    
+        response = requests.post('https://panel.aqayepardakht.ir/api/v2/create', data=data)
+        json_data = json.loads(response.text)
+
+        if response.status_code == 200 and json_data.get('status') == 'success':
+            transid = json_data.get('transid')
+            if transid:
+                return redirect(f'https://panel.aqayepardakht.ir/startpay/sandbox/{transid}')
+      
+        return render(request, 'orders/load.html')
+
+@method_decorator(csrf_exempt, name='dispatch')
+class PaymentCallbackView(View):
+    def post(self, request):
+        status = request.POST.get('status')
+        transid = request.POST.get('transid')
+        invoice_id_str = request.POST.get('invoice_id')
+        print(invoice_id_str)
+       
+        print(type(invoice_id_str))
+
+        invoice_id_int = int(invoice_id_str)
+
+        if status == "1":  
+            try:
+                order = get_object_or_404(Order, id=invoice_id_int)
+                order.paid = True
+                
+                order.save()
+                
+
+                return redirect('home:home')
+
+                
+         
+
+            except OrderItem.DoesNotExist:
+                print("OrderItem with the given ID does not exist")
+                return redirect('orders:order_create')
+        else:
+
+            order = get_object_or_404(Order, id=invoice_id_int)
+                
+               
+            order_items = order.items.all() 
+    
+            products = [item.product for item in order_items]
+               
+            print(products)
+                               
+            for item in order_items:
+                product = item.product
+                product.stock += item.quantity
+                product.save() 
+                             
+            return redirect('home:home')               
+            
+
+
+
+
+class ProfileOrderDetail(View):
+    def get(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+        order_items = order.items.all() 
+    
+        products = [item.product for item in order_items]
+
+        print(products)
+
+        return render(request, 'orders/profile_order_detail.html',{'product':products})
+>>>>>>> c42e347d (atomic transaction)

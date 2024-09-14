@@ -18,6 +18,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ('paid',)
     inlines = (OrserItemInline,)
     
+<<<<<<< HEAD
     def save_model(self, request, obj, form, change):
         if change and 'paid' in form.changed_data and obj.paid:
            
@@ -31,8 +32,15 @@ class OrderAdmin(admin.ModelAdmin):
             product = item.product  
             product.stock -= item.quantity  
             product.save()
+=======
+
+>>>>>>> c42e347d (atomic transaction)
     
 
 
 admin.site.register(Coupon)
+<<<<<<< HEAD
+=======
+admin.site.register(OrderItem)
+>>>>>>> c42e347d (atomic transaction)
 

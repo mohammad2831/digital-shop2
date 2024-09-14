@@ -41,6 +41,11 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'products.apps.ProductsConfig',
     'orders.apps.OrdersConfig',
+<<<<<<< HEAD
+=======
+    'corsheaders',
+
+>>>>>>> c42e347d (atomic transaction)
 ]
 
 MIDDLEWARE = [
@@ -51,6 +56,22 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+<<<<<<< HEAD
+=======
+
+
+
+    'corsheaders.middleware.CorsMiddleware',
+
+
+    'accounts.middleware.AdminLockMiddleware',
+]
+CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'https://yourdomain.com',
+>>>>>>> c42e347d (atomic transaction)
 ]
 
 ROOT_URLCONF = 'shop.urls'
@@ -80,12 +101,34 @@ WSGI_APPLICATION = 'shop.wsgi.application'
 
 DATABASES = {
     'default': {
+<<<<<<< HEAD
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+=======
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'mhmd',
+        'USER': 'mhmd',
+        'PASSWORD': '6541',
+        'HOST': 'localhost',
+        'PORT': '',
+    },
+    'OPTIONS': {'sslmode': 'disable',
+>>>>>>> c42e347d (atomic transaction)
     }
 }
 
 
+<<<<<<< HEAD
+=======
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
+    }
+}
+
+>>>>>>> c42e347d (atomic transaction)
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 

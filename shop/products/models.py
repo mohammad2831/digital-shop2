@@ -37,7 +37,16 @@ class Products(models.Model):
     stock = models.IntegerField(default=0)  
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+<<<<<<< HEAD
 
+=======
+    lock_session = models.CharField(max_length=40, null=True, blank=True)
+    lock_timestamp = models.DateTimeField(null=True, blank=True)
+
+    def is_available(self):
+        return self.stock > 0
+    
+>>>>>>> c42e347d (atomic transaction)
     class Meta:
         ordering = ('created' ,)
     
@@ -45,6 +54,24 @@ class Products(models.Model):
         return self.name
     
 
+<<<<<<< HEAD
+=======
+
+class ProductLock(models.Model):
+    product = models.OneToOneField(Products, on_delete=models.CASCADE)
+    lock_session = models.CharField(max_length=40, null=True, blank=True)
+    lock_timestamp = models.DateTimeField(null=True, blank=True)
+    locked_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+
+    def is_locked(self):
+        if self.lock_timestamp and (timezone.now() - self.lock_timestamp).total_seconds() > 300:  # به‌عنوان مثال، 5 دقیقه
+            return False
+        return self.lock_session is not None
+
+
+
+
+>>>>>>> c42e347d (atomic transaction)
 class Attribute(models.Model):
     name = models.CharField(max_length=255)
     category = models.ForeignKey(Category_Type, related_name='attributes', on_delete=models.CASCADE)
