@@ -1,0 +1,33 @@
+<!-- accounts/profile.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>User Profile</h2>
+<hr>
+
+<p><strong>Full Name:</strong> {{ user.username }}</p>
+<p><strong>Email:</strong> {{ user.email }}</p>
+<p><strong>Phone Number:</strong> {{ user.phone_number }}</p>
+
+<br>
+
+<h3>All Orders :</h3>
+<hr>
+
+{% for order in orders %}
+<p><strong>Time :</strong> {{ order.created }}</p>
+<p><strong>Paid :</strong> {{ order.paid }}</p>
+<a href="{% url 'orders:profile_order_detail' order.id %}"> <button> Detail </button> </a>
+
+
+<br>
+<br>
+<hr>
+
+
+
+
+{% endfor %}
+
+{% endblock %}

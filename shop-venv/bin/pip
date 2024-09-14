@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #!/media/mohammad/app.work/shop/shop-venv/bin/python3
+=======
+#!/usr/bin/python3
+>>>>>>> c42e347d (atomic transaction)
 # -*- coding: utf-8 -*-
 import re
 import sys
